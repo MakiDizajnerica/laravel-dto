@@ -7,6 +7,7 @@ use ReflectionClass;
 use JsonSerializable;
 use AllowDynamicProperties;
 use Illuminate\Contracts\Support\Arrayable;
+use MakiDizajnerica\Dto\Attributes\DoNotSerializeProperty;
 
 #[AllowDynamicProperties]
 abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSerializable
