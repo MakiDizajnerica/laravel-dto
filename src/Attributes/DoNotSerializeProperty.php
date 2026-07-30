@@ -1,6 +1,6 @@
 <?php
 
-namespace MakiDizajnerica\Dto;
+namespace MakiDizajnerica\Dto\Attributes;
 
 use Attribute;
 
