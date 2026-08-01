@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use MakiDizajnerica\Dto\DataTransferObject;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
-abstract class DtoCast implements CastsAttributes
+abstract class DataCast implements CastsAttributes
 {
     /**
      * Cast the given value.
@@ -16,10 +16,10 @@ abstract class DtoCast implements CastsAttributes
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
         if (blank($value)) {
-            return $this->toDto($model);
+            return $this->toData($model);
         }
 
-        return $this->toDto($model, json_decode($value, true));
+        return $this->toData($model, json_decode($value, true));
     }
 
     /**
@@ -45,5 +45,5 @@ abstract class DtoCast implements CastsAttributes
      * @param  array  $data
      * @return \MakiDizajnerica\Dto\DataTransferObject
      */
-    abstract protected function toDto(Model $model, array $data = []): DataTransferObject;
+    abstract protected function toData(Model $model, array $data = []): DataTransferObject;
 }
