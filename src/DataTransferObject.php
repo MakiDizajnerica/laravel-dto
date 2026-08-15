@@ -6,8 +6,8 @@ use ArrayAccess;
 use ReflectionClass;
 use JsonSerializable;
 use AllowDynamicProperties;
+use MakiDizajnerica\Dto\Attributes\Hidden;
 use Illuminate\Contracts\Support\Arrayable;
-use MakiDizajnerica\Dto\Attributes\DoNotSerializeProperty;
 
 #[AllowDynamicProperties]
 abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSerializable
@@ -61,7 +61,7 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
     public function with(array $overrides): static
     {
         return static::make(
-            array_merge($this->toArray(), $overrides)
+            array_merge($this->toRawArray(), $overrides)
         );
     }
 
@@ -75,7 +75,7 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
             $keys = [$keys];
         }
 
-        $data = $this->toArray();
+        $data = $this->toRawArray();
 
         foreach ($keys as $key) {
             unset($data[$key]);
@@ -94,7 +94,7 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
             $keys = [$keys];
         }
 
-        $data = $this->toArray();
+        $data = $this->toRawArray();
 
         $filtered = array_filter(
             $data,
@@ -198,9 +198,10 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
     }
 
     /**
-     * Serialize the properties of the DTO into an array.
+     * @param  bool $applyAttributes
+     * @return array
      */
-    protected function serializeProperties(): array
+    private function buildArray(bool $applyAttributes): array
     {
         $reflection = new ReflectionClass($this);
         $properties = $reflection->getProperties();
@@ -215,12 +216,15 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
             }
 
             $value = $property->getValue($this);
-            $attributes = $property->getAttributes();
 
-            foreach ($attributes as $attribute) {
-                switch ($attribute->getName()) {
-                    case DoNotSerializeProperty::class:
-                        continue 3;
+            if ($applyAttributes) {
+                $attributes = $property->getAttributes();
+
+                foreach ($attributes as $attribute) {
+                    switch ($attribute->getName()) {
+                        case Hidden::class:
+                            continue 3;
+                    }
                 }
             }
 
@@ -231,17 +235,25 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
     }
 
     /**
-     * @return array
+     * Get all properties of the DTO as an array.
      */
-    public function toArray(): array
+    final public function toRawArray(): array
     {
-        return $this->serializeProperties();
+        return $this->buildArray(false);
+    }
+
+    /**
+     * Get all properties of the DTO as an array, excluding hidden properties.
+     */
+    final public function toArray(): array
+    {
+        return $this->buildArray(true);
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize(): array
+    final public function jsonSerialize(): array
     {
         return $this->toArray();
     }
