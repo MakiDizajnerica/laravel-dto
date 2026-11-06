@@ -201,7 +201,7 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
      * @param  bool $applyAttributes
      * @return array
      */
-    private function buildArray(bool $applyAttributes): array
+    protected function buildArray(bool $applyAttributes): array
     {
         $reflection = new ReflectionClass($this);
         $properties = $reflection->getProperties();
