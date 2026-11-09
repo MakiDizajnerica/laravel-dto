@@ -2,6 +2,7 @@
 
 namespace MakiDizajnerica\Dto;
 
+use Throwable;
 use ArrayAccess;
 use ReflectionClass;
 use JsonSerializable;
@@ -121,6 +122,20 @@ abstract class DataTransferObject implements Arrayable, ArrayAccess, JsonSeriali
     public function isset(mixed $offset): bool
     {
         return isset($this->$offset);
+    }
+
+    /**
+     * @param  mixed $offset
+     * @return bool
+     */
+    public function initialized(mixed $offset): bool
+    {
+        try {
+            return $this->exists($offset)
+                && ($this->isset($offset) || $this->$offset === null);
+        } catch (Throwable) {}
+
+        return false;
     }
 
     /**
